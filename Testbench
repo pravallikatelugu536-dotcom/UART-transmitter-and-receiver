@@ -1,0 +1,96 @@
+`timescale 1ns/1ps
+
+module tb_uart;
+
+    reg clk;
+    reg reset;
+
+    reg        tx_start;
+    reg [7:0]  tx_data;
+
+    wire       tx;
+    wire       tx_busy;
+
+    wire [7:0] rx_data;
+    wire       rx_valid;
+
+    // UART transmitter
+    uart_tx #(
+        .CLK_FREQ(100),
+        .BAUD_RATE(10)
+    ) transmitter (
+        .clk(clk),
+        .reset(reset),
+        .tx_start(tx_start),
+        .tx_data(tx_data),
+        .tx(tx),
+        .tx_busy(tx_busy)
+    );
+
+    // UART receiver
+    uart_rx #(
+        .CLK_FREQ(100),
+        .BAUD_RATE(10)
+    ) receiver (
+        .clk(clk),
+        .reset(reset),
+        .rx(tx),
+        .rx_data(rx_data),
+        .rx_valid(rx_valid)
+    );
+
+    // 10 ns clock period
+    always #5 clk = ~clk;
+
+    initial begin
+
+        $dumpfile("uart.vcd");
+        $dumpvars(0, tb_uart);
+
+        clk      = 1'b0;
+        reset    = 1'b1;
+        tx_start = 1'b0;
+        tx_data  = 8'h00;
+
+        // Reset
+        #20;
+        reset = 1'b0;
+
+        // Send A5
+        #20;
+        tx_data  = 8'hA5;
+        tx_start = 1'b1;
+
+        #10;
+        tx_start = 1'b0;
+
+        // Wait for transmission
+        #1100;
+
+        // Send 55
+        tx_data  = 8'h55;
+        tx_start = 1'b1;
+
+        #10;
+        tx_start = 1'b0;
+
+        #1100;
+
+        $finish;
+
+    end
+
+    // Display received data
+    always @(posedge clk) begin
+
+        if (rx_valid) begin
+            $display(
+                "Time=%0t ns | Received Data = %h",
+                $time,
+                rx_data
+            );
+        end
+
+    end
+
+endmodule

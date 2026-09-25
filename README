@@ -1,0 +1,86 @@
+# UART Transmitter and Receiver using Verilog
+
+## Description
+
+This project implements a UART (Universal Asynchronous Receiver/Transmitter)
+using Verilog HDL.
+
+The design contains:
+
+1. UART Transmitter
+2. UART Receiver
+3. Testbench for transmitting and receiving data
+
+UART communication uses:
+- 8 data bits
+- 1 start bit
+- 1 stop bit
+- No parity
+- LSB transmitted first
+
+Configuration:
+
+    Baud Rate  : 9600
+    Data Bits  : 8
+    Stop Bits  : 1
+    Parity     : None
+
+## UART Frame
+
+Each transmitted byte has the following format:
+
+    IDLE | START | DATA[0] ... DATA[7] | STOP
+
+Example for transmitting 8'hA5:
+
+    Start   Data bits              Stop
+      0    1 0 1 0 0 1 0 1           1
+
+## Files
+
+    uart_tx.v
+        UART transmitter.
+
+    uart_rx.v
+        UART receiver.
+
+    tb_uart.v
+        Testbench connecting transmitter and receiver.
+
+    README.md
+        Project documentation.
+
+## Inputs and Outputs
+
+UART Transmitter:
+
+    clk       : System clock
+    reset     : Active-high reset
+    tx_start  : Start transmission
+    tx_data   : 8-bit data
+    tx        : Serial UART output
+    tx_busy   : Indicates transmitter is busy
+
+UART Receiver:
+
+    clk        : System clock
+    reset      : Active-high reset
+    rx         : Serial UART input
+    rx_data    : Received 8-bit data
+    rx_valid   : Indicates valid received data
+
+## Simulation
+
+Compile:
+
+    iverilog -o uart_tb uart_tx.v uart_rx.v tb_uart.v
+
+Run:
+
+    vvp uart_tb
+
+The testbench also generates:
+
+    uart.vcd
+
+which can be viewed using GTKWave.
